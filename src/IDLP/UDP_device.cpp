@@ -183,6 +183,38 @@ IDLP::IDLP_Error UDP_device::set_sending_port(uint16_t port, uint32_t ipv4_addre
     return IDLP::IDLP_ERROR_NONE;
 }
 
+IDLP::IDLP_Error UDP_device::find_open_port(uint16_t& port, uint16_t min_port, uint16_t max_port)
+{
+    IDLP::IDLP_Error error = IDLP::IDLP_ERROR_NOT_FOUND;
+    IDLP::IDLP_Error current_error = IDLP::IDLP_ERROR_NOT_FOUND;
+    bool continuing = true;
+    port = min_port;
+    do
+    {
+        current_error = set_receiving_port(port);
+        if(current_error == IDLP::IDLP_ERROR_NONE)
+        {
+            continuing = false;
+            error = current_error;
+        }
+        else if(current_error != static_cast<IDLP::IDLP_Error>(-EADDRINUSE))
+        {
+            continuing = false;
+            error = current_error;
+        }
+        else if(port < max_port)
+        {
+            port++;
+        }
+        else
+        {
+            continuing = false;
+        }
+    } 
+    while (continuing);
+    
+    return error;
+}
 
 }
 //#else
