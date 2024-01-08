@@ -15,6 +15,28 @@ TEST_CASE( "UDP_device_test.stack", "UDP_device_test.stack" )
     UDP_device c;
 }
 
+TEST_CASE( "UDP_device_test.simple_udp_test", "UDP_device_test.simple_udp_test" )
+{
+    UDP_device client;
+    UDP_device server;
+    uint16_t port = 8000;
+    uint16_t max_port = 8100;
+    uint32_t localhost = 0x00000000;
+    uint16_t attempt_port = port;
+    IDLP::IDLP_Error error = IDLP::IDLP_ERROR_NONE;
+
+    REQUIRE(IDLP::IDLP_ERROR_NONE == server.find_open_port(port, port, max_port));
+    REQUIRE(IDLP::IDLP_ERROR_NONE == client.set_sending_port(port, localhost));
+
+    uint8_t message[] = {0x0,0x1,0x2,0x3,0x4};
+    const size_t c_buffer_size = sizeof(message);
+    uint8_t buffer[c_buffer_size];
+
+    REQUIRE(IDLP::IDLP_ERROR_NONE == client.write_exact(&message[0], sizeof(message), 10000));
+    REQUIRE(IDLP::IDLP_ERROR_NONE == server.read_exact(&buffer[0], sizeof(buffer), 10000));
+    REQUIRE(std::memcmp(&buffer[0],&message[0],sizeof(buffer)) == 0);
+}
+
 TEST_CASE( "UDP_device_test.udp_test", "UDP_device_test.udp_test" )
 {
     UDP_device client;

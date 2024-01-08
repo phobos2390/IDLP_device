@@ -50,15 +50,21 @@ public:
         tv.tv_sec = timeout_ms / 1000;
         tv.tv_usec = (timeout_ms % 1000) * 1000;
 
-        select_result = select(m_socket_file_descriptor, 0, 0, 0, &tv);
+        fd_set rfds;
+        // fd_set wfds;
+
+        FD_ZERO(&rfds);
+        FD_SET(m_socket_file_descriptor, &rfds);
+
+        // FD_ZERO(&wfds);
+        // FD_SET(m_socket_file_descriptor, &wfds);
+
+        select_result = setsockopt(m_socket_file_descriptor, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+//        select_result = select(1, &rfds, 0, 0, &tv);
 
         if(select_result < 0)
         {
             error = static_cast<IDLP::IDLP_Error>(-errno);
-        }
-        else if(select_result == 0)
-        {
-            error = IDLP::IDLP_ERROR_TIMEOUT;
         }
 
         return error;
@@ -82,18 +88,18 @@ int64_t UDP_device::write(uint8_t* out_bytes, size_t bytes_size, size_t timeout_
     IDLP::IDLP_Error error = IDLP::IDLP_ERROR_NONE;
     int64_t bytes_written = 0;
 
-    error = m_p_impl->wait_for_fd(timeout_ms);
+    //error = m_p_impl->wait_for_fd(timeout_ms);
     if(error == IDLP::IDLP_ERROR_NONE)
     {
         ssize_t result = sendto(m_p_impl->m_socket_file_descriptor, 
                                 out_bytes,
                                 bytes_size,
                                 0,
-                                &m_p_impl->m_receiving_address, 
-                                sizeof(m_p_impl->m_receiving_address)); 
+                                &m_p_impl->m_sending_address, 
+                                sizeof(m_p_impl->m_sending_address)); 
         if(result < 0)
         {
-            result = static_cast<IDLP::IDLP_Error>(-errno);
+            bytes_written = static_cast<IDLP::IDLP_Error>(-errno);
         }
         else
         {
@@ -119,9 +125,13 @@ int64_t UDP_device::read(uint8_t* in_bytes, size_t max_bytes_size, size_t timeou
         result = recvfrom(m_p_impl->m_socket_file_descriptor, 
                           in_bytes, 
                           max_bytes_size,  
-                          MSG_DONTWAIT, 
+                          0, 
                           &m_p_impl->m_sending_address, 
                           &sock_struct_length);
+        if(result < 0)
+        {
+            result = static_cast<int64_t>(-errno);
+        }
     }
     else 
     {
@@ -142,7 +152,7 @@ IDLP::IDLP_Error UDP_device::set_receiving_port(uint16_t port)
 
         new_addr.sin_family      = AF_INET; // IPv4 
         new_addr.sin_addr.s_addr = INADDR_ANY; 
-        new_addr.sin_port        = port; 
+        new_addr.sin_port        = htons(port); 
 
         (void)std::memcpy(&m_p_impl->m_receiving_address, &new_addr, sizeof(new_addr));
 
@@ -163,7 +173,7 @@ IDLP::IDLP_Error UDP_device::set_receiving_port(uint16_t port)
         }
         else
         {
-            error = static_cast<IDLP::IDLP_Error>(fd);
+            error = static_cast<IDLP::IDLP_Error>(-errno);
         }
     }
     return error;
@@ -171,16 +181,30 @@ IDLP::IDLP_Error UDP_device::set_receiving_port(uint16_t port)
 
 IDLP::IDLP_Error UDP_device::set_sending_port(uint16_t port, uint32_t ipv4_address)
 {
-    sockaddr_in new_addr;
-    (void)std::memset(&new_addr, 0, sizeof(new_addr));
+    IDLP::IDLP_Error error = IDLP::IDLP_ERROR_INVALID;
+    if(m_p_impl->m_socket_file_descriptor == 0)
+    {
+        int32_t fd = socket(AF_INET, SOCK_DGRAM, 0);
+        if(fd >= 0)
+        {
+            sockaddr_in new_addr;
+            (void)std::memset(&new_addr, 0, sizeof(new_addr));
 
-    new_addr.sin_family      = AF_INET; // IPv4 
-    new_addr.sin_addr.s_addr = ipv4_address; 
-    new_addr.sin_port        = port;
+            new_addr.sin_family      = AF_INET; // IPv4 
+            new_addr.sin_addr.s_addr = htonl(ipv4_address); 
+            new_addr.sin_port        = htons(port);
 
-    (void)std::memcpy(&m_p_impl->m_sending_address, &new_addr, sizeof(new_addr));
+            (void)std::memcpy(&m_p_impl->m_sending_address, &new_addr, sizeof(new_addr));
+            m_p_impl->m_socket_file_descriptor = fd;
+            error = IDLP::IDLP_ERROR_NONE;
+        }
+        else
+        {
+            error = static_cast<IDLP::IDLP_Error>(-errno);
+        }
+    }
 
-    return IDLP::IDLP_ERROR_NONE;
+    return error;
 }
 
 IDLP::IDLP_Error UDP_device::find_open_port(uint16_t& port, uint16_t min_port, uint16_t max_port)
