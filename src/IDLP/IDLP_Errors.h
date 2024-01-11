@@ -13,6 +13,7 @@ namespace IDLP
     const static int32_t IDLP_ERROR_NULL = 0;
     const static int32_t IDLP_ERROR_INVALID = -2;
     const static int32_t IDLP_ERROR_TIMEOUT = -3;
+    const static int32_t IDLP_ERROR_NOT_FOUND = -4;
 }
 
 #endif /* IDLP_IDLP_ERRORS_H */
