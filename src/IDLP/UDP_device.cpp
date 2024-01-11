@@ -1,6 +1,7 @@
 /// @file IDLP/UDP_device.cpp
 
 #include <IDLP/UDP_device.h>
+#include <mutex>
 
 //#ifdef LINUX
 #include <sys/socket.h>
@@ -23,6 +24,7 @@ public:
     int32_t m_socket_file_descriptor;
     sockaddr m_receiving_address;
     sockaddr m_sending_address;
+    std::timed_mutex m_mutex;
 
     Impl()
         :m_socket_file_descriptor(0)
@@ -64,7 +66,14 @@ public:
 
         if(select_result < 0)
         {
-            error = static_cast<IDLP::IDLP_Error>(-errno);
+            if(errno == ETIMEDOUT)
+            {
+                error = IDLP::IDLP_ERROR_TIMEOUT;
+            }
+            else
+            {
+                error = static_cast<IDLP::IDLP_Error>(-errno);
+            }
         }
 
         return error;
@@ -85,11 +94,10 @@ UDP_device::~UDP_device()
 
 int64_t UDP_device::write(uint8_t* out_bytes, size_t bytes_size, size_t timeout_ms)
 {
-    IDLP::IDLP_Error error = IDLP::IDLP_ERROR_NONE;
+    IDLP::IDLP_Error error = IDLP::IDLP_ERROR_TIMEOUT;
     int64_t bytes_written = 0;
 
-    //error = m_p_impl->wait_for_fd(timeout_ms);
-    if(error == IDLP::IDLP_ERROR_NONE)
+    if(m_p_impl->m_mutex.try_lock_for(std::chrono::milliseconds(timeout_ms)))
     {
         ssize_t result = sendto(m_p_impl->m_socket_file_descriptor, 
                                 out_bytes,
@@ -99,16 +107,20 @@ int64_t UDP_device::write(uint8_t* out_bytes, size_t bytes_size, size_t timeout_
                                 sizeof(m_p_impl->m_sending_address)); 
         if(result < 0)
         {
-            bytes_written = static_cast<IDLP::IDLP_Error>(-errno);
+            if(errno == ETIMEDOUT)
+            {
+                bytes_written = IDLP::IDLP_ERROR_TIMEOUT;
+            }
+            else
+            {
+                bytes_written = static_cast<IDLP::IDLP_Error>(-errno);
+            }
         }
         else
         {
             bytes_written = static_cast<int64_t>(result);
         }
-    }
-    else
-    {
-        bytes_written = static_cast<uint64_t>(error);
+        m_p_impl->m_mutex.unlock();
     }
     return bytes_written;
 }
@@ -117,25 +129,36 @@ int64_t UDP_device::read(uint8_t* in_bytes, size_t max_bytes_size, size_t timeou
 {
     socklen_t sock_struct_length = sizeof(m_p_impl->m_sending_address);
     ssize_t result = 0;
-    IDLP::IDLP_Error error = IDLP::IDLP_ERROR_NONE;
+    IDLP::IDLP_Error error = IDLP::IDLP_ERROR_TIMEOUT;
 
-    error = m_p_impl->wait_for_fd(timeout_ms);
-    if(error == IDLP::IDLP_ERROR_NONE)
+    if(m_p_impl->m_mutex.try_lock_for(std::chrono::milliseconds(timeout_ms)))
     {
-        result = recvfrom(m_p_impl->m_socket_file_descriptor, 
-                          in_bytes, 
-                          max_bytes_size,  
-                          0, 
-                          &m_p_impl->m_sending_address, 
-                          &sock_struct_length);
-        if(result < 0)
+        error = m_p_impl->wait_for_fd(timeout_ms);
+        if(error == IDLP::IDLP_ERROR_NONE)
         {
-            result = static_cast<int64_t>(-errno);
+            result = recvfrom(m_p_impl->m_socket_file_descriptor, 
+                            in_bytes, 
+                            max_bytes_size,  
+                            0, 
+                            &m_p_impl->m_sending_address, 
+                            &sock_struct_length);
+            if(result < 0)
+            {
+                if(errno == ETIMEDOUT)
+                {
+                    result = static_cast<int64_t>(IDLP::IDLP_ERROR_TIMEOUT);
+                }
+                else
+                {
+                    result = static_cast<int64_t>(-errno);
+                }
+            }
         }
-    }
-    else 
-    {
-        result = static_cast<int64_t>(error);
+        else 
+        {
+            result = static_cast<int64_t>(error);
+        }
+        m_p_impl->m_mutex.unlock();
     }
 
     return result;

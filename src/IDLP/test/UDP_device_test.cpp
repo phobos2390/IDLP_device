@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <cstring>
+#include <IDLP/IDLP_endian.h>
 #include <IDLP/UDP_device.h> // Testing include guard
 
 using namespace IDLP;
@@ -121,13 +122,16 @@ TEST_CASE( "UDP_device_test.udp_spiral_handoff_test", "UDP_device_test.udp_spira
     {
         std::stringstream error_message;
         uint64_t spiral_client = 0;
+        uint64_t spiral_client_network = 0;
         uint64_t spiral_client_received = 0;
-        for(uint32_t i = 0; i < 2; i++)
+        for(uint32_t i = 0; i < 10; i++)
         {
-            std::cout << "Sending spiral client message \n" << std::endl;
-            IDLP::IDLP_Error current_error = client.write_exact(reinterpret_cast<uint8_t*>(&spiral_client), 
-                                                                sizeof(spiral_client), 
+            std::cout << "Sending spiral client message " << std::endl;
+            spiral_client_network = IDLP::hton(spiral_client);
+            IDLP::IDLP_Error current_error = client.write_exact(reinterpret_cast<uint8_t*>(&spiral_client_network), 
+                                                                sizeof(spiral_client_network), 
                                                                 10000);
+
             if(writer_error == IDLP::IDLP_ERROR_NONE)
             {
                 writer_error = current_error;
@@ -141,6 +145,7 @@ TEST_CASE( "UDP_device_test.udp_spiral_handoff_test", "UDP_device_test.udp_spira
             current_error = client.read_exact(reinterpret_cast<uint8_t*>(&spiral_client_received), 
                                               sizeof(spiral_client_received), 
                                               10000);
+            spiral_client_received = IDLP::ntoh(spiral_client_received);
             if(writer_error == IDLP::IDLP_ERROR_NONE)
             {
                 writer_error = current_error;
@@ -162,7 +167,7 @@ TEST_CASE( "UDP_device_test.udp_spiral_handoff_test", "UDP_device_test.udp_spira
             }
             else
             {
-                std::cout << "Successfully received spiral client message \n" << std::endl;
+                std::cout << "Successfully received spiral client message" << std::endl;
             }
             spiral_client++;
         }
@@ -172,16 +177,16 @@ TEST_CASE( "UDP_device_test.udp_spiral_handoff_test", "UDP_device_test.udp_spira
         std::stringstream error_message;
         uint64_t spiral_server_received = 0;
         uint64_t spiral_server = 0;
-        for(uint32_t i = 0; i < 2; i++)
+        for(uint32_t i = 0; i < 10; i++)
         {
             IDLP::IDLP_Error current_error = server.read_exact(reinterpret_cast<uint8_t*>(&spiral_server_received), 
                                                                sizeof(spiral_server_received), 
                                                                10000);
-
+            spiral_server_received = IDLP::ntoh(spiral_server_received);
             if(current_error != IDLP::IDLP_ERROR_NONE)
             {
                 error_message.str("");
-                error_message << "There was an error reading the spiral serverd " << current_error << std::endl;
+                error_message << "There was an error reading the spiral server " << current_error << std::endl;
                 std::cout << error_message.str();
             }
             else
@@ -194,11 +199,11 @@ TEST_CASE( "UDP_device_test.udp_spiral_handoff_test", "UDP_device_test.udp_spira
             {
                 reader_error = current_error;
             }
-            spiral_server = spiral_server_received + 1;
+            spiral_server = IDLP::hton(spiral_server_received + 1);
             current_error = server.write_exact(reinterpret_cast<uint8_t*>(&spiral_server), 
                                                sizeof(spiral_server), 
                                                10000);
-            std::cout << "Wrote spiral server message \n" << std::endl;
+            std::cout << "Wrote spiral server message " << std::endl;
             if(reader_error == IDLP::IDLP_ERROR_NONE)
             {
                 reader_error = current_error;
