@@ -13,7 +13,7 @@
 #include <netinet/in.h> 
 #include <errno.h>
 #include <cstring>
-
+#include <IDLP/IDLP_endian.h>
 
 namespace IDLP
 {
@@ -175,7 +175,7 @@ IDLP::IDLP_Error UDP_device::set_receiving_port(uint16_t port)
 
         new_addr.sin_family      = AF_INET; // IPv4 
         new_addr.sin_addr.s_addr = INADDR_ANY; 
-        new_addr.sin_port        = htons(port); 
+        new_addr.sin_port        = IDLP::hton(port); 
 
         (void)std::memcpy(&m_p_impl->m_receiving_address, &new_addr, sizeof(new_addr));
 
@@ -214,8 +214,8 @@ IDLP::IDLP_Error UDP_device::set_sending_port(uint16_t port, uint32_t ipv4_addre
             (void)std::memset(&new_addr, 0, sizeof(new_addr));
 
             new_addr.sin_family      = AF_INET; // IPv4 
-            new_addr.sin_addr.s_addr = htonl(ipv4_address); 
-            new_addr.sin_port        = htons(port);
+            new_addr.sin_addr.s_addr = IDLP::hton(ipv4_address); 
+            new_addr.sin_port        = IDLP::hton(port);
 
             (void)std::memcpy(&m_p_impl->m_sending_address, &new_addr, sizeof(new_addr));
             m_p_impl->m_socket_file_descriptor = fd;
