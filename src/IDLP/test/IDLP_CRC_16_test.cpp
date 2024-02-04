@@ -8,5 +8,5 @@ using namespace IDLP;
 
 TEST_CASE( "IDLP_CRC_16_test", "stack" )
 {
-    IDLP_CRC_16 c;
+    REQUIRE(0 == IDLP::crc_16(0, 0));
 }
