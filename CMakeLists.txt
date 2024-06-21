@@ -15,9 +15,13 @@ set(VERSION_MAJOR 0)
 set(VERSION_MINOR 1)
 set(VERSION_PATCH 0)
 
-set(CMAKE_C_COMPILER "/usr/bin/gcc")
-set(CMAKE_CXX_COMPILER "/usr/bin/g++")
-set(CMAKE_CXX_FLAGS "-Wa,-mbig-obj -g -std=c++20")
+#set(CMAKE_C_COMPILER "/usr/bin/gcc")
+#set(CMAKE_CXX_COMPILER "/usr/bin/g++")
+#set(CMAKE_CXX_FLAGS "-Wa,-mbig-obj -g -std=c++20")
+
+set(CMAKE_C_COMPILER "/root/GCC-11.2.0/bin/gcc")
+set(CMAKE_CXX_COMPILER "/root/GCC-11.2.0/bin/g++")
+set(CMAKE_CXX_FLAGS "-g -std=c++20")
 
 set(SOURCE_DIRECTORIES ${SRC_ROOT_DIR})
 
@@ -41,8 +45,14 @@ set(LIB_NAME_SHARED ${PROJ_NAME}_${REPO_NAME})
 set(LIB_NAME_STATIC ${PROJ_NAME}_${REPO_NAME}_s)
 set(LIB_TEST_NAME "test_${PROJ_NAME}_${REPO_NAME}")
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
+set(EXTRA_LIBS -pthread)
+
 message("Building static library ${LIB_NAME_STATIC} with ${all_source_files}")
 add_library(${LIB_NAME_STATIC} STATIC ${all_source_files})
+target_link_libraries(${LIB_NAME_STATIC} ${EXTRA_LIBS})
 message("Building shared library ${LIB_NAME_SHARED} with ${all_source_files}")
 add_library(${LIB_NAME_SHARED} SHARED ${all_source_files})
 
@@ -54,4 +64,5 @@ foreach(app_file ${all_app_files})
 endforeach()
 
 add_executable(${LIB_TEST_NAME} ${all_test_files})
-target_link_libraries(${LIB_TEST_NAME} ${LIB_NAME_STATIC})
+target_link_libraries(${LIB_TEST_NAME} ${LIB_NAME_STATIC} ${EXTRA_LIBS})
+
