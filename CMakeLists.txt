@@ -21,8 +21,12 @@ set(VERSION_PATCH 0)
 #set(CMAKE_CXX_COMPILER "/usr/bin/g++")
 #set(CMAKE_CXX_FLAGS "-Wa,-mbig-obj -g -std=c++20")
 
-set(CMAKE_C_COMPILER "/root/GCC-11.2.0/bin/gcc")
-set(CMAKE_CXX_COMPILER "/root/GCC-11.2.0/bin/g++")
+#set(CMAKE_C_COMPILER "/root/GCC-11.2.0/bin/gcc")
+#set(CMAKE_CXX_COMPILER "/root/GCC-11.2.0/bin/g++")
+#set(CMAKE_CXX_FLAGS "-g -std=c++20")
+
+set(CMAKE_C_COMPILER "/opt/rh/devtoolset-11/root/bin/gcc")
+set(CMAKE_CXX_COMPILER "/opt/rh/devtoolset-11/root/bin/g++")
 set(CMAKE_CXX_FLAGS "-g -std=c++20")
 
 set(SOURCE_DIRECTORIES ${SRC_ROOT_DIR})
