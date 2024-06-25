@@ -12,6 +12,7 @@ build-job:       # This job runs in the build stage, which runs first.
     - vm07-jlarsen-desktop
   stage: build
   script:
+    - git submodule init
     - git submodule update
     - make clean lib
 
