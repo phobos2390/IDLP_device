@@ -4,16 +4,22 @@ stages:          # List of stages for jobs, and their order of execution
   - deploy
 
 build-job:       # This job runs in the build stage, which runs first.
+  tags:
+    - vm07-jlarsen-desktop
   stage: build
   script:
     - make clean lib
 
 unit-test-job:   # This job runs in the test stage.
+  tags:
+    - vm07-jlarsen-desktop
   stage: test    # It only starts when the job in the build stage completes successfully.
   script:
     - make test
 
 deploy-job:      # This job runs in the deploy stage.
+  tags:
+    - vm07-jlarsen-desktop
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
   environment: production
   script:
