@@ -2,10 +2,10 @@ all:
 	@echo "test, lib, clean"
 
 test: lib 
-	build/test_phobos2390_IDLP
+	cd build && ./test_phobos2390_IDLP
 	
 valgrind: lib 
-	valgrind build/test_phobos2390_IDLP
+	cd build && valgrind ./test_phobos2390_IDLP
 
 artifact: lib 
 	mkdir -p artifact/lib artifact/test artifact/apps

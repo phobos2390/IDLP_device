@@ -16,6 +16,7 @@ namespace IDLP
     const static int32_t IDLP_ERROR_NOT_FOUND = -4;
     const static int32_t IDLP_ERROR_BAD_SIZE = -5;
     const static int32_t IDLP_ERROR_CORRUPTION = -6;
+    const static int32_t IDLP_ERROR_FILE = -7;
 }
 
 #endif /* IDLP_IDLP_ERRORS_H */
