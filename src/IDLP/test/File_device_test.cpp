@@ -25,7 +25,7 @@ TEST_CASE( "File_device_test.basic_file_write_test", "File_device_test.basic_fil
 TEST_CASE( "File_device_test.basic_file_write_read_test", "File_device_test.basic_file_write_read_test" )
 {
     const char* message = "Lorem ipsum" ;
-    size_t message_length = strlen(message) + 1;
+    size_t message_length = strlen(message);
     uint8_t out_buffer [0x100];
     uint8_t in_buffer [0x100];
     (void)std::memset(&out_buffer[0], 0, sizeof(out_buffer));
