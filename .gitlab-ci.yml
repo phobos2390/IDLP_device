@@ -11,6 +11,10 @@ build-job:       # This job runs in the build stage, which runs first.
   tags:
     - vm07-jlarsen-desktop
   stage: build
+  cache:
+    key: $CI_COMMIT_BRANCH
+    paths:
+      - $GIT_CLONE_PATH
   script:
     - git submodule init
     - git submodule update
@@ -20,6 +24,10 @@ unit-test-job:   # This job runs in the test stage.
   tags:
     - vm07-jlarsen-desktop
   stage: test    # It only starts when the job in the build stage completes successfully.
+  cache:
+    key: $CI_COMMIT_BRANCH
+    paths:
+      - $GIT_CLONE_PATH
   script:
     - make test
 
@@ -27,6 +35,10 @@ deploy-job:      # This job runs in the deploy stage.
   tags:
     - vm07-jlarsen-desktop
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
+  cache:
+    key: $CI_COMMIT_BRANCH
+    paths:
+      - $GIT_CLONE_PATH
   artifacts:
     paths:
       - artifact/
