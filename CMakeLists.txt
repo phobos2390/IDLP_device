@@ -56,7 +56,7 @@ foreach(source_dir ${SOURCE_DIRECTORIES})
   file(GLOB dir_header_files ${source_dir}/*.h*)
   foreach(header_file ${dir_header_files})
       get_filename_component(header_file_name ${header_file} NAME)
-      file(COPY ${header_file} DESTINATION ${dest_directory}/${header_file_name})
+      file(COPY_FILE ${header_file} ${dest_directory}/${header_file_name})
   endforeach()
 endforeach()
 
