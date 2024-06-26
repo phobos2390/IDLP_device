@@ -8,7 +8,7 @@ project("${PROJ_NAME}-${REPO_NAME}")
 set(PROJ_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(SRC_ROOT_DIR ${PROJ_DIR}/src/${REPO_NAME})
 
-set(APP_DIR ${CMAKE_CURRENT_BINARY_DIR}/apps)
+set(APP_DIR ${CMAKE_CURRENT_BINARY_DIR}/app)
 
 include_directories("${PROJ_DIR}/catch2/single_include")
 include_directories("${PROJ_DIR}/src/")

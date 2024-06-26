@@ -20,16 +20,16 @@ coverage: valgrind
 	cd build/gcov && find -name '*.gcov' | xargs -n 1 -I@ echo @ '####@' | sed -e 's/####.*src#//g' | xargs -n 2 mv
 
 artifact: coverage
-	mkdir -p artifact/lib artifact/test artifact/apps
+	mkdir -p artifact/lib artifact/test artifact/app
 	cp -rf build/include artifact/
 	cp -rf build/test_phobos2390_IDLP artifact/test
 	cp -rf build/*.so artifact/lib
-	cp -rf build/apps artifact/
+	cp -rf build/app artifact/
 	cp -rf build/gcov artifact/gcov
 	mkdir -p artifact/phobos2390_IDLP_device
 	mv artifact/lib artifact/phobos2390_IDLP_device
 	mv artifact/test artifact/phobos2390_IDLP_device
-	mv artifact/apps artifact/phobos2390_IDLP_device
+	mv artifact/app artifact/phobos2390_IDLP_device
 	mv artifact/include artifact/phobos2390_IDLP_device
 	tar -czvf artifact/phobos2390_IDLP_device.tar.gz artifact/phobos2390_IDLP_device
 	tar -czvf artifact/phobos2390_IDLP_device_gcov.tar.gz artifact/gcov

@@ -44,11 +44,15 @@ int64_t RLE_compressor_device::write(uint8_t* out_bytes, size_t bytes_size, size
                run_size++;
                will_add = false;
            }
-           else
+           else if (run_size > 1)
            {
                bytes_to_write.push_back(0xFF);
                bytes_to_write.push_back(run_size);
                run_size = 1;
+               will_add = true;
+           }
+           else
+           {
                will_add = true;
            }
        }

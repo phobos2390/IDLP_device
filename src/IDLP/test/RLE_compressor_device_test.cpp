@@ -90,3 +90,10 @@ TEST_CASE( "RLE_compressor_device_test.size_too_big_escaped", "RLE_compressor_de
     uint8_t output_message [] = { 0xFF, 0xFF, 0xFF, 0xFE, 0xFF, 0xFF, 0xFF, 0x2 };
     REQUIRE (IDLP::IDLP_ERROR_NONE == test_input (&input_message[0], sizeof(input_message), &output_message[0], sizeof(output_message)));
 }
+
+TEST_CASE( "RLE_compressor_device_test.nonescaped", "RLE_compressor_device_test.nonescaped" )
+{ 
+    uint8_t input_message [] = { 0, 1, 5, 2, 3, 2, 1 };
+    uint8_t output_message [] = { 0, 1, 5, 2, 3, 2, 1 };
+    REQUIRE (IDLP::IDLP_ERROR_NONE == test_input (&input_message[0], sizeof(input_message), &output_message[0], sizeof(output_message)));
+}
