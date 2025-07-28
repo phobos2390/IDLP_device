@@ -3,3 +3,5 @@ artifact
 .vscode
 .*.swp
 .*.swo
+.vscode
+nbproject
