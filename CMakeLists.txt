@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6.0)
+cmake_minimum_required(VERSION 3.5.0)
 
 set(PROJ_NAME phobos2390)
 set(REPO_NAME IDLP)
@@ -17,7 +17,8 @@ set(VERSION_PATCH 0)
 
 set(CMAKE_C_COMPILER "/usr/bin/gcc")
 set(CMAKE_CXX_COMPILER "/usr/bin/g++")
-set(CMAKE_CXX_FLAGS "-Wa,-mbig-obj -g -std=c++20")
+#set(CMAKE_CXX_FLAGS "-Wa,-mbig-obj -g -std=c++20")
+set(CMAKE_CXX_FLAGS "-g -std=c++20")
 
 set(SOURCE_DIRECTORIES ${SRC_ROOT_DIR})
 
