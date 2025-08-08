@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6.0)
+cmake_minimum_required(VERSION 3.22.0)
 
 set(PROJ_NAME phobos2390)
 set(REPO_NAME IDLP)
@@ -8,7 +8,8 @@ project("${PROJ_NAME}-${REPO_NAME}")
 set(PROJ_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(SRC_ROOT_DIR ${PROJ_DIR}/src/${REPO_NAME})
 
-set(APP_DIR ${CMAKE_CURRENT_BINARY_DIR}/app)
+set(APP_DIR_REL executables)
+set(APP_DIR ${CMAKE_CURRENT_BINARY_DIR}/${APP_DIR_REL})
 
 include_directories("${PROJ_DIR}/catch2/single_include")
 include_directories("${PROJ_DIR}/src/")
@@ -17,17 +18,18 @@ set(VERSION_MAJOR 0)
 set(VERSION_MINOR 1)
 set(VERSION_PATCH 0)
 
-#set(CMAKE_C_COMPILER "/usr/bin/gcc")
-#set(CMAKE_CXX_COMPILER "/usr/bin/g++")
+set(CMAKE_C_COMPILER "/usr/bin/gcc")
+set(CMAKE_CXX_COMPILER "/usr/bin/g++")
 #set(CMAKE_CXX_FLAGS "-Wa,-mbig-obj -g -std=c++20")
+set(CMAKE_CXX_FLAGS "-g -std=c++20")
 
 #set(CMAKE_C_COMPILER "/root/GCC-11.2.0/bin/gcc")
 #set(CMAKE_CXX_COMPILER "/root/GCC-11.2.0/bin/g++")
 #set(CMAKE_CXX_FLAGS "-g -std=c++20")
 
-set(CMAKE_C_COMPILER "/opt/rh/devtoolset-11/root/bin/gcc")
-set(CMAKE_CXX_COMPILER "/opt/rh/devtoolset-11/root/bin/g++")
-set(CMAKE_CXX_FLAGS "-g -fprofile-arcs -ftest-coverage -std=c++20")
+#set(CMAKE_C_COMPILER "/opt/rh/devtoolset-11/root/bin/gcc")
+#set(CMAKE_CXX_COMPILER "/opt/rh/devtoolset-11/root/bin/g++")
+#set(CMAKE_CXX_FLAGS "-g -fprofile-arcs -ftest-coverage -std=c++20")
 
 set(SOURCE_DIRECTORIES ${SRC_ROOT_DIR})
 
@@ -78,9 +80,9 @@ message("Making applications directory ${APP_DIR}")
 file(MAKE_DIRECTORY ${APP_DIR})
 foreach(app_file ${all_app_files})
   get_filename_component(app_name ${app_file} NAME_WE)
-  message("Building app ${APP_DIR}/${app_name}")
-  add_executable(${APP_DIR}/${app_name} ${app_file})
-  target_link_libraries(${APP_DIR}/${app_name} ${LIB_NAME_STATIC})
+  message("Building app ${CMAKE_CURRENT_BINARY_DIR}/${app_name}")
+  add_executable(${app_name} ${app_file})
+  target_link_libraries(${app_name} ${LIB_NAME_STATIC})
 endforeach()
 
 add_executable(${LIB_TEST_NAME} ${all_test_files})
